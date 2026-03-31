@@ -1,0 +1,81 @@
+name: Reusable Docker Build and Push to ECR
+
+# on: workflow_call convierte este workflow en una función reutilizable.
+# Solo puede ser invocado por otros workflows, nunca corre solo.
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        description: "Nombre del microservicio (ej: frontend, cartservice)"
+        required: true
+        type: string
+      aws_region:
+        description: "Región AWS donde está el ECR"
+        required: false
+        type: string
+        default: "us-east-1"
+      ecr_registry:
+        description: "URL base del registry (ej: 123456789.dkr.ecr.us-east-1.amazonaws.com)"
+        required: true
+        type: string
+    secrets:
+      aws_role_arn:
+        description: "ARN del IAM Role que GitHub Actions asumirá via OIDC"
+        required: true
+
+jobs:
+  build-and-push:
+    name: Build & Push ${{ inputs.service_name }}
+    runs-on: ubuntu-latest
+
+    # CRÍTICO: Estos permisos son los que permiten el flujo OIDC.
+    # id-token: write → permite que el runner solicite un JWT a GitHub
+    # contents: read  → permite hacer checkout del código
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Este paso es el corazón del OIDC.
+      # El runner solicita un JWT a GitHub, lo presenta a AWS STS,
+      # y AWS devuelve credenciales temporales. No hay secrets estáticos.
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_role_arn }}
+          aws-region: ${{ inputs.aws_region }}
+          # El session name aparece en CloudTrail logs, útil para auditoría
+          role-session-name: GitHubActions-${{ inputs.service_name }}-${{ github.run_id }}
+
+      # Hace login al ECR usando las credenciales temporales del paso anterior.
+      # Retorna la URL del registry como output para usarla después.
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Buildx es el builder moderno de Docker. Habilita:
+      # - Builds multi-arquitectura (arm64/amd64)
+      # - Sistema de caché avanzado
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # La estrategia de tags es importante:
+      # - github.sha: tag inmutable que identifica exactamente qué commit
+      #   generó esta imagen. ArgoCD usará este tag para los deploys.
+      # - latest: conveniente para pruebas locales, pero nunca usar en prod.
+      - name: Build, tag, and push image to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ inputs.ecr_registry }}/cloudops-ecommerce-app-${{ inputs.service_name }}-ecr-repo:${{ github.sha }}
+            ${{ inputs.ecr_registry }}/cloudops-ecommerce-app-${{ inputs.service_name }}-ecr-repo:latest
+          # Cache type=gha usa el cache de GitHub Actions.
+          # mode=max cachea todas las capas, no solo las finales.
+          # En builds reales esto reduce el tiempo de 5min a 30seg.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
