@@ -66,3 +66,5 @@ spec:
       kind: Gateway
     - group: "gateway.networking.k8s.io"
       kind: HTTPRoute
+    - group: argoproj.io
+      kind: Application
