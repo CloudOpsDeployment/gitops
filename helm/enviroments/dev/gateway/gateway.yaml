@@ -3,8 +3,6 @@ kind: Gateway
 metadata:
   name: online-boutique-gateway
   namespace: cloudops-ecommerce-app
-  annotations:
-    kubernetes.io/ingress.class: alb
 spec:
   gatewayClassName: alb
   listeners:
