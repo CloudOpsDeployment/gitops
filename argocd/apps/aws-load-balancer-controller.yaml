@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aws-load-balancer-controller
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cloudops-ecommerce-app
+
+  source:
+    repoURL: https://aws.github.io/eks-charts
+    chart: aws-load-balancer-controller
+    targetRevision: 1.7.2
+
+    helm:
+      values: |
+        clusterName: cloudops-ecommerce-app-dev
+        serviceAccount:
+          create: true
+          annotations:
+            # IRSA: permite al controller crear ALBs en tu cuenta
+            # Este ARN lo crearás en el siguiente paso
+            eks.amazonaws.com/role-arn: "<ARN_DEL_ROLE_LBC>"
+        region: us-east-1
+        vpcId: "<TU_VPC_ID>"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

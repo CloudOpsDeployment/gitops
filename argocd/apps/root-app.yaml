@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cloudops-ecommerce-app
+
+  source:
+    repoURL: https://github.com/CloudOpsDeployment/gitops
+    targetRevision: main
+    # Apunta a la carpeta que contiene las demás Application resources
+    path: argocd/apps
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true      # Borra recursos de K8s si se eliminan de Git
+      selfHeal: true   # Revierte cambios manuales en el cluster
+    syncOptions:
+      - CreateNamespace=true

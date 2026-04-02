@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: frontend
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cloudops-ecommerce-app
+
+  source:
+    repoURL: https://github.com/CloudOpsDeployment/gitops
+    targetRevision: main
+    # Apunta al chart genérico
+    path: helm/charts/microservice
+
+    helm:
+      # Sobreescribe los values con los específicos del servicio y ambiente
+      valueFiles:
+        - "../../enviroments/dev/svc-frontend/values.yaml"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cloudops-ecommerce-app
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

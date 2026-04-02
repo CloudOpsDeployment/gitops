@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: checkoutservice
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cloudops-ecommerce-app
+  source:
+    repoURL: https://github.com/CloudOpsDeployment/gitops
+    targetRevision: main
+    path: helm/charts/microservice
+    helm:
+      valueFiles:
+        - "../../enviroments/dev/svc-checkoutservice/values.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cloudops-ecommerce-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

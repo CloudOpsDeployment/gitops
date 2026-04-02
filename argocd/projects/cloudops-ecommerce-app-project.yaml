@@ -1,0 +1,68 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cloudops-ecommerce-app
+  namespace: argocd
+  # Esta annotation le dice a ArgoCD que NO borre este recurso
+  # si la app que lo gestiona se elimina
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Cloud ops microservices project
+
+  # Repos Git de donde este proyecto puede leer manifests
+  sourceRepos:
+    - "https://github.com/CloudOpsDeployment/gitops"
+    - "https://aws.github.io/eks-charts"
+
+  # Clusters y namespaces donde puede desplegar
+  destinations:
+    - namespace: cloudops-ecommerce-app
+      server: https://kubernetes.default.svc  # El cluster local donde vive ArgoCD
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+    - namespace: kube-system
+      server: https://kubernetes.default.svc
+
+  # Qué recursos Kubernetes puede crear este proyecto
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRole
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRoleBinding
+    - group: "admissionregistration.k8s.io"
+      kind: MutatingWebhookConfiguration
+    - group: "admissionregistration.k8s.io"
+      kind: ValidatingWebhookConfiguration
+    - group: "apiextensions.k8s.io"
+      kind: CustomResourceDefinition
+    - group: "networking.k8s.io"
+      kind: IngressClass
+    - group: "gateway.networking.k8s.io"
+      kind: GatewayClass
+
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: Deployment
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: ConfigMap
+    - group: "rbac.authorization.k8s.io"
+      kind: Role
+    - group: "rbac.authorization.k8s.io"
+      kind: RoleBinding
+    - group: "policy"
+      kind: PodDisruptionBudget
+    - group: "autoscaling"
+      kind: HorizontalPodAutoscaler
+    - group: "gateway.networking.k8s.io"
+      kind: Gateway
+    - group: "gateway.networking.k8s.io"
+      kind: HTTPRoute

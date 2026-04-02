@@ -18,6 +18,16 @@ on:
         description: "URL base del registry (ej: 123456789.dkr.ecr.us-east-1.amazonaws.com)"
         required: true
         type: string
+      docker_context:
+        description: "Ruta del contexto de build Docker (relativa a la raíz del repo)"
+        required: false
+        type: string
+        default: "."
+      dockerfile_path:
+        description: "Ruta del Dockerfile (relativa a la raíz del repo)"
+        required: false
+        type: string
+        default: "Dockerfile"
     secrets:
       aws_role_arn:
         description: "ARN del IAM Role que GitHub Actions asumirá via OIDC"
@@ -69,7 +79,8 @@ jobs:
       - name: Build, tag, and push image to ECR
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ inputs.docker_context }}
+          file: ${{ inputs.dockerfile_path }}
           push: true
           tags: |
             ${{ inputs.ecr_registry }}/cloudops-ecommerce-app-${{ inputs.service_name }}-ecr-repo:${{ github.sha }}
