@@ -10,7 +10,8 @@ portName: http
 
 service:
   enabled: true
-  type: ClusterIP  # Frontend es el único expuesto externamente
+  # AWS LBC en Gateway API usa targetType=instance por defecto; requiere NodePort o LoadBalancer.
+  type: NodePort
   port: 80
   targetPort: 8080
   portName: http
