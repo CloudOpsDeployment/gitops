@@ -10,8 +10,8 @@ portName: http
 
 service:
   enabled: true
-  # AWS LBC en Gateway API usa targetType=instance por defecto; requiere NodePort o LoadBalancer.
-  type: NodePort
+  # Con TargetGroupConfiguration (targetType=ip) el Service puede mantenerse en ClusterIP.
+  type: ClusterIP
   port: 80
   targetPort: 8080
   portName: http
