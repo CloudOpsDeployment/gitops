@@ -5,6 +5,11 @@ metadata:
   namespace: cloudops-ecommerce-app
 spec:
   gatewayClassName: alb
+  infrastructure:
+    parametersRef:
+      group: gateway.k8s.aws
+      kind: LoadBalancerConfiguration
+      name: internet-facing-config
   listeners:
     - name: http
       port: 80
