@@ -1,0 +1,58 @@
+nameOverride: productcatalogservice
+
+image:
+  repository: "224039895989.dkr.ecr.us-east-1.amazonaws.com/cloudops-ecommerce-app-productcatalogservice-ecr-repo"
+  tag: "latest"
+
+containerName: server
+containerPort: 3550
+portName: grpc
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 3550
+  targetPort: 3550
+  portName: grpc
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "64Mi"
+  limits:
+    cpu: "200m"
+    memory: "128Mi"
+
+env:
+  - name: PORT
+    value: "3550"
+  - name: DISABLE_PROFILER
+    value: "1"
+
+terminationGracePeriodSeconds: 5
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  privileged: false
+  readOnlyRootFilesystem: true
+
+readinessProbe:
+  grpc:
+    port: 3550
+
+livenessProbe:
+  grpc:
+    port: 3550
+
+serviceAccount:
+  create: true
+  name: productcatalogservice

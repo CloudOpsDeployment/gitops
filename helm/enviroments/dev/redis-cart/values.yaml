@@ -1,0 +1,61 @@
+nameOverride: redis-cart
+
+image:
+  repository: redis
+  tag: alpine
+
+containerName: redis
+containerPort: 6379
+portName: tcp-redis
+
+service:
+  type: ClusterIP
+  port: 6379
+  targetPort: 6379
+  portName: tcp-redis
+
+resources:
+  limits:
+    memory: 256Mi
+    cpu: 125m
+  requests:
+    cpu: 70m
+    memory: 200Mi
+
+env: []
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  privileged: false
+  readOnlyRootFilesystem: true
+
+readinessProbe:
+  periodSeconds: 5
+  tcpSocket:
+    port: 6379
+
+livenessProbe:
+  periodSeconds: 5
+  tcpSocket:
+    port: 6379
+
+volumeMounts:
+  - mountPath: /data
+    name: redis-data
+
+volumes:
+  - name: redis-data
+    emptyDir: {}
+
+serviceAccount:
+  create: false
+  name: default
