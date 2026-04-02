@@ -21,9 +21,9 @@ spec:
           annotations:
             # IRSA: permite al controller crear ALBs en tu cuenta
             # Este ARN lo crearás en el siguiente paso
-            eks.amazonaws.com/role-arn: "<ARN_DEL_ROLE_LBC>"
+            eks.amazonaws.com/role-arn: "arn:aws:iam::224039895989:role/online-boutique-lbc-role"
         region: us-east-1
-        vpcId: "<TU_VPC_ID>"
+        vpcId: "vpc-041d2c0dc012ffb66"
 
   destination:
     server: https://kubernetes.default.svc

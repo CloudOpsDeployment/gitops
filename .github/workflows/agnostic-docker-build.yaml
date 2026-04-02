@@ -90,3 +90,23 @@ jobs:
           # En builds reales esto reduce el tiempo de 5min a 30seg.
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update image tag in GitOps repo
+              env:
+                GH_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+              run: |
+                # Clonar el repo de gitops
+                git clone https://x-access-token:${GH_TOKEN}@github.com/CloudOpsDeployment/gitops.git
+                cd gitops
+
+                # Actualizar el tag de la imagen con el SHA del commit
+                # sed busca la línea "tag:" y reemplaza el valor
+                sed -i "s|tag:.*|tag: \"${{ github.sha }}\"|" \
+                  environments/dev/$svc-{{ inputs.service_name }}/values.yaml
+
+                # Commit y push
+                git config user.email "ci-bot@cloudops.dev"
+                git config user.name "CI Bot"
+                git add .
+                git commit -m "ci: update ${{ inputs.service_name }} image to ${{ github.sha }}"
+                git push origin main
