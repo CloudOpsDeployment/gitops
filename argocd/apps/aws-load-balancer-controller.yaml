@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://aws.github.io/eks-charts
     chart: aws-load-balancer-controller
-    targetRevision: 1.7.2
+    targetRevision: 3.0.0
 
     helm:
       values: |
@@ -20,7 +20,6 @@ spec:
           create: true
           annotations:
             # IRSA: permite al controller crear ALBs en tu cuenta
-            # Este ARN lo crearás en el siguiente paso
             eks.amazonaws.com/role-arn: "arn:aws:iam::224039895989:role/online-boutique-lbc-role"
         extraArgs:
           feature-gates: ALBGatewayAPI=true
