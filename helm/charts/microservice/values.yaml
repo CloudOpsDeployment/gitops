@@ -42,7 +42,7 @@ env: []
 hpa:
   enabled: false     # Deshabilitado por default en dev (1 solo nodo)
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 70
 
 # Número de réplicas (ignorado si hpa.enabled = true)

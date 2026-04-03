@@ -1,0 +1,94 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cloudops-ecommerce-app
+
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 58.2.2
+
+    helm:
+      values: |
+        # Grafana
+        grafana:
+          enabled: true
+          admin:
+            existingSecret: grafana-admin-credentials
+            userKey: admin-user
+            passwordKey: admin-password
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          persistence:
+            enabled: true
+            type: pvc
+            storageClassName: gp3-csi
+            accessModes:
+              - ReadWriteOnce
+            size: 10Gi
+
+        # Prometheus
+        prometheus:
+          prometheusSpec:
+            # Retención de métricas — 3 días es suficiente para dev
+            retention: 1d
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+            # Persistencia con EBS CSI
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: gp3-csi
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 20Gi
+
+        # AlertManager — lo dejamos liviano
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                cpu: 100m
+                memory: 64Mi
+
+        # Estos componentes monitorean el control plane de K8s
+        # En EKS el control plane es gestionado por AWS, no son accesibles
+        # Deshabilitarlos evita errores de scraping
+        kubeControllerManager:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true  # Necesario para los CRDs grandes de Prometheus

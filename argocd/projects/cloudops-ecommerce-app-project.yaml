@@ -15,6 +15,7 @@ spec:
     - "https://github.com/CloudOpsDeployment/gitops"
     - "https://aws.github.io/eks-charts"
     - "https://charts.external-secrets.io"
+    - "https://prometheus-community.github.io/helm-charts"
 
   # Clusters y namespaces donde puede desplegar
   destinations:
@@ -25,6 +26,8 @@ spec:
     - namespace: kube-system
       server: https://kubernetes.default.svc
     - namespace: external-secrets
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
       server: https://kubernetes.default.svc
 
   # Qué recursos Kubernetes puede crear este proyecto
@@ -49,16 +52,26 @@ spec:
       kind: IngressClassParams
     - group: "external-secrets.io"
       kind: ClusterSecretStore
+    - group: "storage.k8s.io"
+      kind: StorageClass
 
   namespaceResourceWhitelist:
     - group: "apps"
       kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
+    - group: "apps"
+      kind: DaemonSet
+    - group: "batch"
+      kind: Job
     - group: ""
       kind: Service
     - group: ""
       kind: ServiceAccount
     - group: ""
       kind: Secret
+    - group: ""
+      kind: PersistentVolumeClaim
     - group: ""
       kind: ConfigMap
     - group: "rbac.authorization.k8s.io"
@@ -77,5 +90,7 @@ spec:
       kind: ExternalSecret
     - group: "external-secrets.io"
       kind: SecretStore
+    - group: "monitoring.coreos.com"
+      kind: "*"
     - group: argoproj.io
       kind: Application
