@@ -25,7 +25,10 @@ resources:
 
 env:
   - name: REDIS_ADDR
-    value: "redis-cart:6379"
+    valueFrom:
+      secretKeyRef:
+        name: cartservice-secrets
+        key: REDIS_ADDR
 
 terminationGracePeriodSeconds: 5
 

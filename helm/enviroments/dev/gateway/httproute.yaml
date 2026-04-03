@@ -5,7 +5,7 @@ metadata:
   namespace: cloudops-ecommerce-app
 spec:
   parentRefs:
-    - name: online-boutique-gateway
+    - name: cloudops-ecommerce-app-gateway
   rules:
     - matches:
         - path:
