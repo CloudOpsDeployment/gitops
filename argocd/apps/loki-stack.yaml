@@ -6,7 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: online-boutique
+  project: cloudops-ecommerce-app
 
   source:
     repoURL: https://grafana.github.io/helm-charts

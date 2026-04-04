@@ -88,6 +88,10 @@ spec:
       kind: HTTPRoute
     - group: "gateway.networking.k8s.io"
       kind: "*"
+    - group: "gateway.k8s.aws"
+      kind: "TargetGroupConfiguration"
+    - group: "gateway.k8s.aws"
+      kind: "LoadBalancerConfiguration"
     - group: "external-secrets.io"
       kind: ExternalSecret
     - group: "external-secrets.io"
