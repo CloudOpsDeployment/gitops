@@ -20,12 +20,12 @@ spec:
           create: true
           annotations:
             # IRSA: permite al controller crear ALBs en tu cuenta
-            eks.amazonaws.com/role-arn: "arn:aws:iam::224039895989:role/online-boutique-lbc-role"
+            eks.amazonaws.com/role-arn: "arn:aws:iam::224039895989:role/cloudops-ecommerce-app-lbc-role"
         controllerConfig:
           featureGates:
             ALBGatewayAPI: true
         region: us-east-1
-        vpcId: "vpc-041d2c0dc012ffb66"
+        vpcId: "vpc-0f9a18dbc180170f46"
 
   destination:
     server: https://kubernetes.default.svc
