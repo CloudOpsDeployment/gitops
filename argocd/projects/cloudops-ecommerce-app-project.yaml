@@ -86,6 +86,8 @@ spec:
       kind: Gateway
     - group: "gateway.networking.k8s.io"
       kind: HTTPRoute
+    - group: "gateway.networking.k8s.io"
+      kind: "*"
     - group: "external-secrets.io"
       kind: ExternalSecret
     - group: "external-secrets.io"
