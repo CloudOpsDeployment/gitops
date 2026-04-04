@@ -32,9 +32,6 @@ on:
       aws_role_arn:
         description: "ARN del IAM Role que GitHub Actions asumirá via OIDC"
         required: true
-      GH_TOKEN:
-        description: "Token para hacer push al repositorio de GitOps"
-        required: true
 
 jobs:
   build-and-push:
