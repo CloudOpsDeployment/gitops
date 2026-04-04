@@ -25,7 +25,7 @@ spec:
           featureGates:
             ALBGatewayAPI: true
         region: us-east-1
-        vpcId: "vpc-0f9a18dbc180170f46"
+        vpcId: "vpc-0f9a18dbc180170f4"
 
   destination:
     server: https://kubernetes.default.svc
